@@ -1,120 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Brewing Site</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+  }
+  #status {
+    margin-bottom: 10px;
+  }
+  input[type="file"], input[type="text"] {
+    margin-bottom: 10px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #f4f4f4;
+  }
+</style>
+</head>
+<body>
+
+<h1>Brewing Effects</h1>
+
+<div id="status">Loading data...</div>
+
+<!-- File input for CSV -->
+<label for="csvFile">Upload CSV:</label>
+<input type="file" id="csvFile" />
+
+<!-- Search box -->
+<br/>
+<label for="search">Search:</label>
+<input type="text" id="search" placeholder="Search for drinks or effects" />
+
+<!-- Results table -->
+<table>
+  <thead>
+    <tr>
+      <th>Drink</th>
+      <th>Effect</th>
+    </tr>
+  </thead>
+  <tbody id="results">
+    <!-- Rows will be added here -->
+  </tbody>
+</table>
+
+<!-- Your script -->
 <script>
-let powers = {};
-let attributes = {}; // will hold attributes.json data
-let recipes = {};
+document.addEventListener("DOMContentLoaded", () => {
+  let powers = {};
+  let attributes = {}; // will hold attributes.json data
+  let recipes = [];
 
-// Load game data and attributes.json
-async function loadGameData() {
+  // Load game data and attributes.json
+  async function loadGameData() {
     try {
-        const [client, attrs] = await Promise.all([
-            fetch("tsysclientinfo.json").then(r => r.json()),
-            fetch("attributes.json").then(r => r.json())
-        ]);
-        // Store powers
-        for(const item of Object.values(client)){
-            if(item.InternalName){
-                powers[item.InternalName] = item;
-            }
+      const [client, attrs] = await Promise.all([
+        fetch("tsysclientinfo.json").then(r => r.json()),
+        fetch("attributes.json").then(r => r.json())
+      ]);
+      // Store powers
+      for(const item of Object.values(client)){
+        if(item.InternalName){
+          powers[item.InternalName] = item;
         }
-        // Store attributes data
-        attributes = attrs;
+      }
+      // Store attributes data
+      attributes = attrs;
 
-        document.getElementById("status").innerText =
-            `Loaded ${Object.keys(powers).length} effects and attributes`;
+      document.getElementById("status").innerText =
+        `Loaded ${Object.keys(powers).length} effects and attributes`;
 
-        // Load CSV automatically after data load
-        await loadCSVData();
+      // Optionally, load CSV automatically after data load
+      // await loadCSVData();
 
     } catch(e) {
-        document.getElementById("status").innerText = "Failed loading data";
-        console.error(e);
+      document.getElementById("status").innerText = "Failed loading data";
+      console.error(e);
     }
-}
+  }
 
-// Use attributes.json for localization
-function formatEffect(effectId){
+  // Use attributes.json for localization
+  function formatEffect(effectId){
     const attrData = attributes[effectId];
     if(!attrData){
-        return effectId; // fallback if not found
+      return effectId; // fallback if not found
     }
-    // Assuming attributes.json contains a 'DisplayName' or similar property
-    // Adjust property names based on your actual JSON structure
     return attrData.DisplayName || effectId;
-}
+  }
 
-// Resolve effect info
-function resolveEffect(id, tier){
+  function resolveEffect(id, tier){
     const power = powers[id];
     if(!power){
-        return { suffix:"", effect:id };
+      return { suffix:"", effect:id };
     }
     const tierData = power.Tiers?.["id_"+tier];
     if(!tierData){
-        return { suffix:power.Suffix || "", effect: "" };
+      return { suffix:power.Suffix || "", effect: "" };
     }
-    // Use attributes.json for effect description
-    const effectDescId = tierData.EffectDescs?.[0]; // assuming array
+    const effectDescId = tierData.EffectDescs?.[0];
     const effectText = effectDescId ? formatEffect(effectDescId) : "";
     return {
-        suffix: power.Suffix || "",
-        effect: effectText
+      suffix: power.Suffix || "",
+      effect: effectText
     };
-}
+  }
 
-// Parse CSV data
-function parseCSV(text){
+  function parseCSV(text){
     recipes = [];
     for(const line of text.split(/\r?\n/)){
-        if(!line.trim()) continue;
-        const c = line.split(",");
-        if(c.length < 8) continue;
-        const drink = c[0].replace("(Bottle)","").trim();
-        const effectId = c[6];
-        const tier = c[7];
-        const result = resolveEffect(effectId, tier);
-        recipes.push({
-            drink,
-            suffix: result.suffix,
-            effect: result.effect
-        });
+      if(!line.trim()) continue;
+      const c = line.split(",");
+      if(c.length < 8) continue;
+      const drink = c[0].replace("(Bottle)","").trim();
+      const effectId = c[6];
+      const tier = c[7];
+      const result = resolveEffect(effectId, tier);
+      recipes.push({
+        drink,
+        suffix: result.suffix,
+        effect: result.effect
+      });
     }
     render();
-}
+  }
 
-// Render table
-function render() {
+  function render() {
     const tbody = document.getElementById("results");
     tbody.innerHTML = "";
     const search = document.getElementById("search").value.toLowerCase();
     const seen = new Set();
 
     for(const r of recipes){
-        const key = r.drink + r.effect;
-        if(seen.has(key)) continue;
-        seen.add(key);
-        const text = (r.drink + r.effect).toLowerCase();
-        if(!text.includes(search)) continue;
+      const key = r.drink + r.effect;
+      if(seen.has(key)) continue;
+      seen.add(key);
+      const text = (r.drink + r.effect).toLowerCase();
+      if(!text.includes(search)) continue;
 
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${r.drink}</td>
-            <td>${r.effect}</td>
-        `;
-        tbody.appendChild(row);
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${r.drink}</td>
+        <td>${r.effect}</td>
+      `;
+      tbody.appendChild(row);
     }
-}
+  }
 
-// Load CSV from file input
-document.getElementById("csvFile").addEventListener("change", async e => {
+  document.getElementById("csvFile").addEventListener("change", async e => {
     const file = e.target.files[0];
     const text = await file.text();
     parseCSV(text);
+  });
+
+  document.getElementById("search").addEventListener("input", render);
+
+  // Load data on startup
+  loadGameData();
 });
-
-// Search input event
-document.getElementById("search").addEventListener("input", render);
-
-// Load data on startup
-loadGameData();
-
 </script>
+
+</body>
+</html>
