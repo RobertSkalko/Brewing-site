@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
 <title>Project Gorgon Brewing Recipes</title>
 
 <style>
-
 body {
     font-family: Arial, sans-serif;
     max-width: 1200px;
@@ -13,429 +12,180 @@ body {
     padding: 0 20px;
     background: #fafafa;
 }
-
 h1 {
     margin-bottom: 5px;
 }
-
 .status {
     color: #666;
     margin-bottom: 20px;
 }
-
 .controls {
     display:flex;
     gap:15px;
     margin-bottom:20px;
 }
-
 input {
     padding:8px;
 }
-
 table {
     width:100%;
     border-collapse:collapse;
     background:white;
 }
-
 th {
     background:#333;
     color:white;
 }
-
 td, th {
     padding:10px;
     border:1px solid #ddd;
 }
-
 tr:nth-child(even){
     background:#f5f5f5;
 }
-
 </style>
-
 </head>
-
 <body>
-
-
 <h1>Project Gorgon Brewing Recipes</h1>
-
-<div class="status" id="status">
-Loading game data...
-</div>
-
-
+<div class="status" id="status">Loading game data...</div>
 <div class="controls">
-
 <label>
 Recipe CSV:
-<input type="file" id="csvFile" accept=".csv">
+<input type="file" id="csvFile" accept=".csv" />
 </label>
-
-<input
-type="search"
-id="search"
-placeholder="Search effect..."
->
-
+<input type="search" id="search" placeholder="Search effect..." />
 </div>
-
-
 <table>
-
 <thead>
 <tr>
 <th>Drink</th>
-<th>Suffix</th>
 <th>Effect</th>
 </tr>
 </thead>
-
-<tbody id="results">
-</tbody>
-
+<tbody id="results"></tbody>
 </table>
 
-
-
 <script>
-
-
 let powers = {};
 let recipes = [];
 
-
-
-//
-// Load Project Gorgon data
-//
-
-async function loadGameData(){
-
+// Load game data
+async function loadGameData() {
     try {
-
-        const client =
-            await fetch("tsysclientinfo.json")
-            .then(r => r.json());
-
-
+        const client = await fetch("tsysclientinfo.json").then(r => r.json());
         for(const item of Object.values(client)){
-
             if(item.InternalName){
-
                 powers[item.InternalName] = item;
-
             }
-
         }
+        document.getElementById("status").innerText =
+            "Loaded " + Object.keys(powers).length + " effects";
 
+        // After game data loads, load CSV automatically
+        await loadCSVData();
 
-        document.getElementById("status")
-        .innerText =
-        "Loaded " +
-        Object.keys(powers).length +
-        " effects";
-
-
-    }
-    catch(e){
-
-        document.getElementById("status")
-        .innerText =
-        "Failed loading game data";
-
+    } catch(e) {
+        document.getElementById("status").innerText = "Failed loading game data";
         console.error(e);
-
     }
-
 }
 
-
-
-//
-// Convert {MAX_ARMOR}{64}
-// into
-// Max Armor +64
-//
-
+// Format effect text
 function formatEffect(text){
-
-
-    const parts =
-    [...text.matchAll(/\{([^}]+)\}/g)]
-    .map(x=>x[1]);
-
-
+    const parts = [...text.matchAll(/\{([^}]+)\}/g)].map(x=>x[1]);
     if(parts.length < 2)
         return text;
-
-
-    let stat =
-    parts[0]
-    .replaceAll("_"," ")
-    .toLowerCase()
-    .replace(/\b\w/g,
-        c=>c.toUpperCase()
-    );
-
-
+    let stat = parts[0].replaceAll("_"," ").toLowerCase().replace(/\b\w/g, c=>c.toUpperCase());
     return stat + " +" + parts[1];
-
 }
 
-
-
-
-//
-// Resolve effect ID + tier
-//
-
-function resolveEffect(id,tier){
-
-
-    const power =
-        powers[id];
-
-
+// Resolve effect based on ID and tier
+function resolveEffect(id, tier){
+    const power = powers[id];
     if(!power){
-
-        return {
-            suffix:"",
-            effect:id
-        };
-
+        return { suffix:"", effect:id }; // fallback: show ID if effect not found
     }
-
-
-    const tierData =
-        power.Tiers?.["id_"+tier];
-
-
+    const tierData = power.Tiers?.["id_"+tier];
     if(!tierData){
-
-        return {
-            suffix:power.Suffix || "",
-            effect:id
-        };
-
+        return { suffix:power.Suffix || "", effect: "" };
     }
-
-
     return {
-
-        suffix:
-            power.Suffix || "",
-
-
-        effect:
-            tierData.EffectDescs
-            .map(formatEffect)
-            .join(", ")
-
+        suffix: power.Suffix || "",
+        effect: tierData.EffectDescs?.map(formatEffect).join(", ") || ""
     };
-
-
 }
 
-
-
-
-
-//
-// CSV parser
-//
-
+// Parse CSV text
 function parseCSV(text){
-
-
-    recipes=[];
-
-
+    recipes = [];
     for(const line of text.split(/\r?\n/)){
-
-
-        if(!line.trim())
-            continue;
-
-
-        const c=line.split(",");
-
-
-        if(c.length < 8)
-            continue;
-
-
-
-        const drink =
-            c[0]
-            .replace("(Bottle)","")
-            .trim();
-
-
-
-        const effectId =
-            c[6];
-
-
-        const tier =
-            c[7];
-
-
-
-        const result =
-            resolveEffect(
-                effectId,
-                tier
-            );
-
-
-
+        if(!line.trim()) continue;
+        const c = line.split(",");
+        if(c.length < 8) continue;
+        const drink = c[0].replace("(Bottle)","").trim();
+        const effectId = c[6];
+        const tier = c[7];
+        const result = resolveEffect(effectId, tier);
         recipes.push({
-
             drink,
-
-            suffix:
-                result.suffix,
-
-
-            effect:
-                result.effect
-
+            // Remove suffix from display, but store if needed
+            suffix: result.suffix,
+            effect: result.effect
         });
-
-
     }
-
-
     render();
-
 }
 
-
-
-
-//
-// Display table
-//
-
-function render(){
-
-
-    const tbody =
-        document.getElementById("results");
-
-
-    tbody.innerHTML="";
-
-
-    const search =
-        document
-        .getElementById("search")
-        .value
-        .toLowerCase();
-
-
-
-    const seen =
-        new Set();
-
-
+// Render table
+function render() {
+    const tbody = document.getElementById("results");
+    tbody.innerHTML = "";
+    const search = document.getElementById("search").value.toLowerCase();
+    const seen = new Set();
 
     for(const r of recipes){
-
-
-        const key =
-            r.drink +
-            r.effect;
-
-
-        if(seen.has(key))
-            continue;
-
-
+        const key = r.drink + r.effect;
+        if(seen.has(key)) continue;
         seen.add(key);
+        const text = (r.drink + r.effect).toLowerCase();
+        if(!text.includes(search)) continue;
 
-
-
-        const text =
-            (
-            r.drink+
-            r.suffix+
-            r.effect
-            )
-            .toLowerCase();
-
-
-        if(!text.includes(search))
-            continue;
-
-
-
-        const row =
-            document.createElement("tr");
-
-
+        const row = document.createElement("tr");
         row.innerHTML = `
-
-        <td>${r.drink}</td>
-
-        <td>${r.suffix}</td>
-
-        <td>${r.effect}</td>
-
+            <td>${r.drink}</td>
+            <td>${r.effect}</td>
         `;
-
-
         tbody.appendChild(row);
-
-
     }
-
-
 }
 
-
-
-
-
-document
-.getElementById("csvFile")
-.addEventListener(
-"change",
-async e=>{
-
-
-    const file =
-        e.target.files[0];
-
-
-    const text =
-        await file.text();
-
-
+// Load CSV from file input
+document.getElementById("csvFile").addEventListener("change", async e => {
+    const file = e.target.files[0];
+    const text = await file.text();
     parseCSV(text);
-
-
 });
 
+// Search input event
+document.getElementById("search").addEventListener("input", render);
 
+// Load CSV automatically after game data loads
+async function loadCSVData() {
+    try {
+        const response = await fetch('brewing_discoveries.csv');
+        if(!response.ok) throw new Error('Network response was not ok');
+        const csvText = await response.text();
+        parseCSV(csvText);
+        document.getElementById("status").innerText = "CSV data loaded automatically.";
+    } catch(e) {
+        document.getElementById("status").innerText = "Failed to load CSV automatically.";
+        console.error(e);
+    }
+}
 
-document
-.getElementById("search")
-.addEventListener(
-"input",
-render
-);
-
-
-
+// Start process
 loadGameData();
 
-
 </script>
-
-
 </body>
 </html>
