@@ -1,0 +1,48 @@
+recipe_name,ingredient1,ingredient2,ingredient3,ingredient4,effect_name,power,power_tier,item_name,type_id
+Rice Wine (Bottle),Soybeans,Walnuts,Peach,Pansy,,BrewingSwordBaseDmg,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Grapes,Chia Seeds,Pansy,,BrewingMitCrushPsychicDemonic,26,Rice Wine,21857
+Rice Wine (Bottle),Walnuts,Grapes,Chia Seeds,Pansy,,BrewingMitSlashTraumaDivine,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Pear,Chia Seeds,Pansy,,BrewingWerewolfBaseDmg,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Soybeans,Grapes,Pansy,,BrewingNecromancyBaseDmg,26,Rice Wine,21857
+Rice Wine (Bottle),Soybeans,Walnuts,Grapes,Pansy,,BrewingBoostVsConstructs,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Soybeans,Pear,Pansy,,BrewingCrossbowBaseDmg,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Soybeans,Peach,Pansy,,BrewingBoostVsOrcs,26,Rice Wine,21857
+Rice Wine (Bottle),Soybeans,Walnuts,Pear,Pansy,of Placeholder Effects,BrewingNYI,26,Rice Wine of Placeholder Effects,21857
+Rice Wine (Bottle),Almonds,Rattus Root,Grapes,Pansy,,BrewingArcheryBaseDamage,26,Rice Wine,21857
+Rice Wine (Bottle),Rattus Root,Walnuts,Grapes,Poppy,,BrewingNecromancyBaseDmg,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Rattus Root,Pear,Pansy,,BrewingDigDeep,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Rattus Root,Peach,Pansy,,BrewingBoostVsIncorporeal,26,Rice Wine,21857
+Rice Wine (Bottle),Dill,Walnuts,Peach,Pansy,Fisherman's,BrewingFisherman,26,Fisherman's Rice Wine,21857
+Rice Wine (Bottle),Dill,Walnuts,Peach,Poppy,Racer's,BrewingRacingToughness,26,Racer's Rice Wine,21857
+Rice Wine (Bottle),Almonds,Rattus Root,Grapes,Poppy,Corpse Lover's,BrewingCorpseLovers,26,Corpse Lover's Rice Wine,21857
+Rice Wine (Bottle),Rattus Root,Walnuts,Grapes,Pansy,,BrewingMentalismBaseDmg,26,Rice Wine,21857
+Rice Wine (Bottle),Rattus Root,Walnuts,Pear,Pansy,,BrewingMeleeEvasion,26,Rice Wine,21857
+Rice Wine (Bottle),Rattus Root,Walnuts,Pear,Poppy,,BrewingBoostVsDemons,26,Rice Wine,21857
+Rice Wine (Bottle),Rattus Root,Walnuts,Peach,Poppy,,BrewingGamingRacingSafecrackingXp,26,Rice Wine,21857
+Rice Wine (Bottle),Rattus Root,Walnuts,Peach,Pansy,of Power,BrewingMaxPower,26,Rice Wine of Power,21857
+Rice Wine (Bottle),Dill,Walnuts,Pear,Poppy,of Placeholder Effects,BrewingNYI,26,Rice Wine of Placeholder Effects,21857
+Rice Wine (Bottle),Dill,Walnuts,Pear,Pansy,,BrewingSpiderBaseDmg,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Dill,Pear,Pansy,,BrewingMitPierceTraumaDemonic,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Dill,Peach,Pansy,,BrewingMitCrushPoisonDivine,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Dill,Peach,Poppy,of Toughness,BrewingMaxArmor,26,Rice Wine of Toughness,21857
+Rice Wine (Bottle),Almonds,Dill,Grapes,Dahlia,,BrewingMitCrushElectricityNature,26,Rice Wine,21857
+Rice Wine (Bottle),Dill,Walnuts,Grapes,Poppy,Crazy Racer's,BrewingRacingJump,26,Crazy Racer's Rice Wine,21857
+Rice Wine (Bottle),Dill,Walnuts,Pear,Dahlia,,BrewingBoostVsDwarves,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Dill,Pear,Poppy,,BrewingCowBaseDmg,26,Rice Wine,21857
+Rice Wine (Bottle),Almonds,Dill,Grapes,Pansy,of Placeholder Effects,BrewingNYI,26,Rice Wine of Placeholder Effects,21857
+Rice Wine (Bottle),Almonds,Dill,Grapes,Poppy,Pathologist's,BrewingPathology,26,Pathologist's Rice Wine,21857
+Rice Wine (Bottle),Dill,Walnuts,Grapes,Pansy,,BrewingMitPierceColdDarkness,26,Rice Wine,21857
+Rice Wine (Bottle),Dill,Walnuts,Grapes,Dahlia,,BrewingDeerBaseDmg,26,Rice Wine,21857
+Carrot Wine (Bottle),Rattus Root,Vanilla,Juniper Berries,,,BrewingVampirismBaseDmg,14,Carrot Wine,21854
+Orcish Bock (One Glass),Peppercorns,Squash,Guava,Field Mushroom Flakes,,BrewingMeleeEvasion,16,Orcish Bock,21605
+Orcish Bock (One Glass),Peppercorns,Broccoli,Guava,Field Mushroom Flakes,of Rakshasahood,BrewingMaxArmorRak,16,Orcish Bock of Rakshasahood,21605
+Orcish Bock (One Glass),Peppercorns,Carrot,Guava,Field Mushroom Flakes,,BrewingCowDeerPigPowerCost,16,Orcish Bock,21605
+Orcish Bock (One Glass),Mandrake Root,Carrot,Lemon,Blood Mushroom Powder,of Elfinity,BrewingMaxArmorElf,16,Orcish Bock of Elfinity,21605
+Marzen (One Glass),Mandrake Root,Red Apple,Boletus Mushroom Flakes,,Fisherman's,BrewingFisherman,8,Fisherman's Marzen,21603
+Goblin Ale (One Glass),Oregano,Red Apple,Banana,Boletus Mushroom Flakes,,BrewingDruidWerewolfArmorPatchingPowerCost,12,Goblin Ale,21604
+Goblin Ale (One Glass),Oregano,Red Apple,Lemon,Boletus Mushroom Flakes,of Righteousness,BrewingXpRak2,12,Goblin Ale of Righteousness,21604
+Goblin Ale (One Glass),Mandrake Root,Red Apple,Lemon,Boletus Mushroom Flakes,of Healthiness,BrewingMaxHealth,12,Goblin Ale of Healthiness,21604
+Goblin Ale (One Glass),Mandrake Root,Grapes,Lemon,Boletus Mushroom Flakes,,BrewingHammerStaffKnifePowerCost,12,Goblin Ale,21604
+Goblin Ale (One Glass),Mandrake Root,Orange,Lemon,Boletus Mushroom Flakes,,BrewingWardenRabbitSpiritFoxPowerCost,12,Goblin Ale,21604
+Goblin Ale (One Glass),Oregano,Orange,Lemon,Boletus Mushroom Flakes,of Magic,BrewingFireIceNecroPowerCost,12,Goblin Ale of Magic,21604
+Goblin Ale (One Glass),Mandrake Root,Red Apple,Banana,Boletus Mushroom Flakes,,BrewingPriestWeatherWitchingVampirismPowerCost,12,Goblin Ale,21604
