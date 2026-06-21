@@ -1,121 +1,67 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8" />
-<title>Project Gorgon Brewing Recipes</title>
-
-<style>
-body {
-    font-family: Arial, sans-serif;
-    max-width: 1200px;
-    margin: 30px auto;
-    padding: 0 20px;
-    background: #fafafa;
-}
-h1 {
-    margin-bottom: 5px;
-}
-.status {
-    color: #666;
-    margin-bottom: 20px;
-}
-.controls {
-    display:flex;
-    gap:15px;
-    margin-bottom:20px;
-}
-input {
-    padding:8px;
-}
-table {
-    width:100%;
-    border-collapse:collapse;
-    background:white;
-}
-th {
-    background:#333;
-    color:white;
-}
-td, th {
-    padding:10px;
-    border:1px solid #ddd;
-}
-tr:nth-child(even){
-    background:#f5f5f5;
-}
-</style>
-</head>
-<body>
-<h1>Project Gorgon Brewing Recipes</h1>
-<div class="status" id="status">Loading game data...</div>
-<div class="controls">
-<label>
-Recipe CSV:
-<input type="file" id="csvFile" accept=".csv" />
-</label>
-<input type="search" id="search" placeholder="Search effect..." />
-</div>
-<table>
-<thead>
-<tr>
-<th>Drink</th>
-<th>Effect</th>
-</tr>
-</thead>
-<tbody id="results"></tbody>
-</table>
-
 <script>
 let powers = {};
-let recipes = [];
+let attributes = {}; // will hold attributes.json data
+let recipes = {};
 
-// Load game data
+// Load game data and attributes.json
 async function loadGameData() {
     try {
-        const client = await fetch("tsysclientinfo.json").then(r => r.json());
+        const [client, attrs] = await Promise.all([
+            fetch("tsysclientinfo.json").then(r => r.json()),
+            fetch("attributes.json").then(r => r.json())
+        ]);
+        // Store powers
         for(const item of Object.values(client)){
             if(item.InternalName){
                 powers[item.InternalName] = item;
             }
         }
-        document.getElementById("status").innerText =
-            "Loaded " + Object.keys(powers).length + " effects";
+        // Store attributes data
+        attributes = attrs;
 
-        // After game data loads, load CSV automatically
+        document.getElementById("status").innerText =
+            `Loaded ${Object.keys(powers).length} effects and attributes`;
+
+        // Load CSV automatically after data load
         await loadCSVData();
 
     } catch(e) {
-        document.getElementById("status").innerText = "Failed loading game data";
+        document.getElementById("status").innerText = "Failed loading data";
         console.error(e);
     }
 }
 
-// Format effect text
-function formatEffect(text){
-    const parts = [...text.matchAll(/\{([^}]+)\}/g)].map(x=>x[1]);
-    if(parts.length < 2)
-        return text;
-    let stat = parts[0].replaceAll("_"," ").toLowerCase().replace(/\b\w/g, c=>c.toUpperCase());
-    return stat + " +" + parts[1];
+// Use attributes.json for localization
+function formatEffect(effectId){
+    const attrData = attributes[effectId];
+    if(!attrData){
+        return effectId; // fallback if not found
+    }
+    // Assuming attributes.json contains a 'DisplayName' or similar property
+    // Adjust property names based on your actual JSON structure
+    return attrData.DisplayName || effectId;
 }
 
-// Resolve effect based on ID and tier
+// Resolve effect info
 function resolveEffect(id, tier){
     const power = powers[id];
     if(!power){
-        return { suffix:"", effect:id }; // fallback: show ID if effect not found
+        return { suffix:"", effect:id };
     }
     const tierData = power.Tiers?.["id_"+tier];
     if(!tierData){
         return { suffix:power.Suffix || "", effect: "" };
     }
+    // Use attributes.json for effect description
+    const effectDescId = tierData.EffectDescs?.[0]; // assuming array
+    const effectText = effectDescId ? formatEffect(effectDescId) : "";
     return {
         suffix: power.Suffix || "",
-        effect: tierData.EffectDescs?.map(formatEffect).join(", ") || ""
+        effect: effectText
     };
 }
 
-// Parse CSV text
+// Parse CSV data
 function parseCSV(text){
     recipes = [];
     for(const line of text.split(/\r?\n/)){
@@ -128,7 +74,6 @@ function parseCSV(text){
         const result = resolveEffect(effectId, tier);
         recipes.push({
             drink,
-            // Remove suffix from display, but store if needed
             suffix: result.suffix,
             effect: result.effect
         });
@@ -169,23 +114,7 @@ document.getElementById("csvFile").addEventListener("change", async e => {
 // Search input event
 document.getElementById("search").addEventListener("input", render);
 
-// Load CSV automatically after game data loads
-async function loadCSVData() {
-    try {
-        const response = await fetch('brewing_discoveries.csv');
-        if(!response.ok) throw new Error('Network response was not ok');
-        const csvText = await response.text();
-        parseCSV(csvText);
-        document.getElementById("status").innerText = "CSV data loaded automatically.";
-    } catch(e) {
-        document.getElementById("status").innerText = "Failed to load CSV automatically.";
-        console.error(e);
-    }
-}
-
-// Start process
+// Load data on startup
 loadGameData();
 
 </script>
-</body>
-</html>
