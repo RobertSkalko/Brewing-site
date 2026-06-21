@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Brewing Site</title>
+<title>Brewing Effects</title>
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -58,7 +58,6 @@
   </tbody>
 </table>
 
-<!-- Your script -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
   let powers = {};
@@ -84,8 +83,9 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("status").innerText =
         `Loaded ${Object.keys(powers).length} effects and attributes`;
 
-      // Optionally, load CSV automatically after data load
-      // await loadCSVData();
+      // After loading, optionally load CSV automatically
+      // For example, if you have a default CSV URL or filename:
+      // await loadCSVFromURL('your-default.csv');
 
     } catch(e) {
       document.getElementById("status").innerText = "Failed loading data";
@@ -93,23 +93,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // Use attributes.json for localization
-  function formatEffect(effectId){
-    const attrData = attributes[effectId];
-    if(!attrData){
-      return effectId; // fallback if not found
+  // Parse effect strings like '{MOD_SKILL_SWORD}{0.1975}' into readable text
+  function parseEffectString(effectStr) {
+    const regex = /\{([^}]+)\}/g;
+    let match;
+    let result = effectStr;
+    while ((match = regex.exec(effectStr)) !== null) {
+      const key = match[1];
+      // You might want to replace keys with actual names, for now just uppercase
+      result = result.replace(match[0], key);
     }
-    return attrData.DisplayName || effectId;
+    return result;
   }
 
-  function resolveEffect(id, tier){
-    const power = powers[id];
-    if(!power){
-      return { suffix:"", effect:id };
+  // Use attributes.json for localization
+  function formatEffect(effectId) {
+    const attrData = attributes[effectId];
+    if (!attrData) {
+      // If not found, try to parse effect string
+      return parseEffectString(effectId);
     }
-    const tierData = power.Tiers?.["id_"+tier];
-    if(!tierData){
-      return { suffix:power.Suffix || "", effect: "" };
+    return attrData.DisplayName || parseEffectString(effectId);
+  }
+
+  function resolveEffect(id, tier) {
+    const power = powers[id];
+    if (!power) {
+      return { suffix: "", effect: id };
+    }
+    const tierData = power.Tiers?.["id_" + tier];
+    if (!tierData) {
+      return { suffix: power.Suffix || "", effect: "" };
     }
     const effectDescId = tierData.EffectDescs?.[0];
     const effectText = effectDescId ? formatEffect(effectDescId) : "";
@@ -119,13 +133,13 @@ document.addEventListener("DOMContentLoaded", () => {
     };
   }
 
-  function parseCSV(text){
+  function parseCSV(text) {
     recipes = [];
-    for(const line of text.split(/\r?\n/)){
-      if(!line.trim()) continue;
+    for (const line of text.split(/\r?\n/)) {
+      if (!line.trim()) continue;
       const c = line.split(",");
-      if(c.length < 8) continue;
-      const drink = c[0].replace("(Bottle)","").trim();
+      if (c.length < 8) continue;
+      const drink = c[0].replace("(Bottle)", "").trim();
       const effectId = c[6];
       const tier = c[7];
       const result = resolveEffect(effectId, tier);
@@ -144,12 +158,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const search = document.getElementById("search").value.toLowerCase();
     const seen = new Set();
 
-    for(const r of recipes){
+    for (const r of recipes) {
       const key = r.drink + r.effect;
-      if(seen.has(key)) continue;
+      if (seen.has(key)) continue;
       seen.add(key);
       const text = (r.drink + r.effect).toLowerCase();
-      if(!text.includes(search)) continue;
+      if (!text.includes(search)) continue;
 
       const row = document.createElement("tr");
       row.innerHTML = `
@@ -162,11 +176,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("csvFile").addEventListener("change", async e => {
     const file = e.target.files[0];
+    if (!file) return;
     const text = await file.text();
     parseCSV(text);
   });
 
   document.getElementById("search").addEventListener("input", render);
+
+  // Optionally, auto-load CSV from a URL or filename
+  // Example:
+  // async function loadCSVFromURL(url) {
+  //   const response = await fetch(url);
+  //   const text = await response.text();
+  //   parseCSV(text);
+  // }
+  // loadCSVFromURL('your-default.csv');
 
   // Load data on startup
   loadGameData();
